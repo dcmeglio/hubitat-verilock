@@ -136,7 +136,7 @@ def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelEndPointReport 
 	  response(zwave.multiChannelV3.multiChannelCapabilityGet(endPoint: 1)) ]
 }
 
-def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCapabilityReport cmd) {
+/*def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCapabilityReport cmd) {
 log.debug "cmd: " + cmd
 log.debug "fmt: " + cmd.format()
 	def result = []
@@ -153,7 +153,7 @@ log.debug "fmt: " + cmd.format()
 		if(cmds) result << response(cmds)
 		result
 	}
-}
+}*/
 
 def zwaveEvent(hubitat.zwave.commands.associationv2.AssociationGroupingsReport cmd) {
 	state.groups = cmd.supportedGroupings
@@ -164,27 +164,30 @@ def zwaveEvent(hubitat.zwave.commands.associationv2.AssociationGroupingsReport c
 
 def zwaveEvent(hubitat.zwave.commands.associationgrpinfov1.AssociationGroupInfoReport cmd) {
 	def cmds = []
-	/*for (def i = 0; i < cmd.groupCount; i++) {
-		def prof = cmd.payload[5 + (i * 7)]
-		def num = cmd.payload[3 + (i * 7)]
-		if (prof == 0x20 || prof == 0x31 || prof == 0x71) {
-			updateDataValue("agi$num", String.format("%02X%02X", *(cmd.payload[(7*i+5)..(7*i+6)])))
-			cmds << response(zwave.multiChannelAssociationV2.multiChannelAssociationSet(groupingIdentifier:num, nodeId:zwaveHubNodeId))
-		}
-	}*/
 	for (def i = 2; i <= state.groups; i++) {
 		cmds << response(zwave.multiChannelAssociationV2.multiChannelAssociationSet(groupingIdentifier:i, nodeId:zwaveHubNodeId))
 	}
 	cmds
 }
 
+// Multi-channel event from the device. Version 1 of Command Class
+def zwaveEvent(hubitat.zwave.commands.multiinstancev1.MultiInstanceCmdEncap cmd) {
+	log.debug ("DEBUG  multiinstancev1.MultiInstanceCmdEncap cmd=${cmd}")
+	zwaveEventMultiCmdEncap(cmd)
+}
+/*
 def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCmdEncap cmd) {
 	def encapsulatedCommand = cmd.encapsulatedCommand([0x32: 3, 0x25: 1, 0x20: 1])
+	log.debug "cmd: ${cmd}"
 	if (encapsulatedCommand) {
+		log.debug "encapsulatedCommand: ${encapsulatedCommand}"
 		if (state.enabledEndpoints.find { it == cmd.sourceEndPoint }) {
+			log.debug "found"
 			def formatCmd = ([cmd.commandClass, cmd.command] + cmd.parameter).collect{ String.format("%02X", it) }.join()
+			log.debug "formatCmd ${formatCmd}"
 			createEvent(name: "epEvent", value: "$cmd.sourceEndPoint:$formatCmd", isStateChange: true, displayed: false, descriptionText: "(fwd to ep $cmd.sourceEndPoint)")
 		} else {
+			log.debug "not found"
 			zwaveEvent(encapsulatedCommand, cmd.sourceEndPoint as Integer)
 		}
 	}
@@ -215,7 +218,7 @@ def zwaveEvent(hubitat.zwave.commands.crc16encapv1.Crc16Encap cmd) {
 	if (encapsulatedCommand) {
 		zwaveEvent(encapsulatedCommand)
 	}
-}
+}*/
 
 def zwaveEvent(hubitat.zwave.Command cmd) {
 	createEvent(descriptionText: "$device.displayName: $cmd", isStateChange: true)
@@ -225,20 +228,6 @@ def configure() {
 	commands([
 		zwave.multiChannelV3.multiChannelEndPointGet()
 	], 800)
-}
-
-def epCmd(Integer ep, String cmds) {
-	def result
-	if (cmds) {
-		def header = state.sec ? "988100600D00" : "600D00"
-		result = cmds.split(",").collect { cmd -> (cmd.startsWith("delay")) ? cmd : String.format("%s%02X%s", header, ep, cmd) }
-	}
-	result
-}
-
-def enableEpEvents(enabledEndpoints) {
-	state.enabledEndpoints = enabledEndpoints.split(",").findAll()*.toInteger()
-	null
 }
 
 private command(hubitat.zwave.Command cmd) {

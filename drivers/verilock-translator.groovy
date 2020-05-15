@@ -137,20 +137,22 @@ def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelEndPointReport 
 }
 
 def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCapabilityReport cmd) {
-log.debug cmd
-log.debug cmd.format()
+log.debug "cmd: " + cmd
+log.debug "fmt: " + cmd.format()
 	def result = []
 	def cmds = []
 	if(!state.endpointInfo) state.endpointInfo = []
-	state.endpointInfo[cmd.endPoint - 1] = cmd.format()[6..-1]
-	if (cmd.endPoint < getDataValue("endpoints").toInteger()) {
-		cmds = zwave.multiChannelV3.multiChannelCapabilityGet(endPoint: cmd.endPoint + 1).format()
-	} else {
-		logDebug "endpointInfo: ${state.endpointInfo.inspect()}"
+	if (cmd.format().size() > 6) {
+		state.endpointInfo[cmd.endPoint - 1] = cmd.format()[6..-1]
+		if (cmd.endPoint < getDataValue("endpoints").toInteger()) {
+			cmds = zwave.multiChannelV3.multiChannelCapabilityGet(endPoint: cmd.endPoint + 1).format()
+		} else {
+			logDebug "endpointInfo: ${state.endpointInfo.inspect()}"
+		}
+		result << createEvent(name: "epInfo", value: groovy.json.JsonOutput.toJson(state.endpointInfo), displayed: false, descriptionText:"")
+		if(cmds) result << response(cmds)
+		result
 	}
-	result << createEvent(name: "epInfo", value: groovy.json.JsonOutput.toJson(state.endpointInfo), displayed: false, descriptionText:"")
-	if(cmds) result << response(cmds)
-	result
 }
 
 def zwaveEvent(hubitat.zwave.commands.associationv2.AssociationGroupingsReport cmd) {

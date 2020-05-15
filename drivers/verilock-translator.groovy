@@ -176,7 +176,7 @@ def zwaveEvent(hubitat.zwave.commands.multiinstancev1.MultiInstanceCmdEncap cmd)
 	log.debug ("DEBUG  multiinstancev1.MultiInstanceCmdEncap cmd=${cmd}")
 	zwaveEventMultiCmdEncap(cmd)
 }
-/*
+
 def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCmdEncap cmd) {
 	def encapsulatedCommand = cmd.encapsulatedCommand([0x32: 3, 0x25: 1, 0x20: 1])
 	log.debug "cmd: ${cmd}"
@@ -194,32 +194,6 @@ def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCmdEncap cmd) {
 	}
 }
 
-def zwaveEvent(hubitat.zwave.commands.securityv1.SecurityMessageEncapsulation cmd) {
-	def encapsulatedCommand = cmd.encapsulatedCommand([0x20: 1, 0x84: 1])
-	if (encapsulatedCommand) {
-		state.sec = 1
-		def result = zwaveEvent(encapsulatedCommand)
-		result = result.collect {
-			if (it instanceof hubitat.device.HubAction && !it.toString().startsWith("9881")) {
-				response(cmd.CMD + "00" + it.toString())
-			} else {
-				it
-			}
-		}
-		result
-	}
-}
-
-def zwaveEvent(hubitat.zwave.commands.crc16encapv1.Crc16Encap cmd) {
-	def versions = [0x31: 2, 0x30: 1, 0x84: 1, 0x9C: 1, 0x70: 2]
-	// def encapsulatedCommand = cmd.encapsulatedCommand(versions)
-	def version = versions[cmd.commandClass as Integer]
-	def ccObj = version ? zwave.commandClass(cmd.commandClass, version) : zwave.commandClass(cmd.commandClass)
-	def encapsulatedCommand = ccObj?.command(cmd.command)?.parse(cmd.data)
-	if (encapsulatedCommand) {
-		zwaveEvent(encapsulatedCommand)
-	}
-}*/
 
 def zwaveEvent(hubitat.zwave.Command cmd) {
 	createEvent(descriptionText: "$device.displayName: $cmd", isStateChange: true)

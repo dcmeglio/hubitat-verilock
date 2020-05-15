@@ -1,0 +1,26 @@
+{
+  "packageName": "Andersen Verilock Translator",
+  "author": "Dominick Meglio & Eric Maycock",
+  "minimumHEVersion": "2.1.9",
+  "licenseFile": "https://raw.githubusercontent.com/dcmeglio/hubitat-verilock/master/LICENSE",
+  "documentationLink": "https://github.com/dcmeglio/hubitat-verilock/blob/master/README.md",
+  "dateReleased": "2020-05-15",
+  "drivers": [
+    {
+      "id": "01199711-00bb-47a3-9d33-8e423bcef1bf",
+      "name": "Verilock Translator",
+      "namespace": "erocm123",
+      "location": "https://raw.githubusercontent.com/dcmeglio/hubitat-verilock/master/drivers/verilock-translator.groovy",
+      "required": true,
+      "version": "1.0"
+    },
+    {
+      "id": "849196df-f5b9-4339-8d3c-bfd15d56c51c",
+      "name": "Lockable Door/Window Child Device",
+      "namespace": "erocm123",
+      "location": "https://raw.githubusercontent.com/dcmeglio/hubitat-verilock/master/drivers/verilock-contactlock.groovy",
+      "required": true,
+      "version": "1.0"
+    }
+  ]
+}

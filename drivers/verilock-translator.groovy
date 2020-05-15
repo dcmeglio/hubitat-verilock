@@ -137,6 +137,8 @@ def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelEndPointReport 
 }
 
 def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCapabilityReport cmd) {
+log.debug cmd
+log.debug cmd.format()
 	def result = []
 	def cmds = []
 	if(!state.endpointInfo) state.endpointInfo = []

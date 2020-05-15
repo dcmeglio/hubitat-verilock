@@ -49,6 +49,7 @@ def zwaveEvent(hubitat.zwave.commands.wakeupv1.WakeUpNotification cmd) {
 
 def zwaveEvent(hubitat.zwave.commands.notificationv3.NotificationReport cmd, ep = null)
 {
+log.debug "Notification: ${cmd}"
     def evtName
     def evtValue
     switch(cmd.event){
@@ -76,7 +77,7 @@ def zwaveEvent(hubitat.zwave.commands.notificationv3.NotificationReport cmd, ep 
                 [completedSetup: true, label: "${device.displayName} Window ${ep}",
                 isComponent: false, componentName: "ep$ep", componentLabel: "Window $ep"])
     }
-
+log.debug "Got here ${evtName} ${evtVaue}"
     childDevice.sendEvent(name: evtName, value: evtValue)
         
     def allLocked = true

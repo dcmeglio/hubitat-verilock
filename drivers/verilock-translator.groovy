@@ -123,6 +123,7 @@ private channelNumber(String dni) {
 }
 
 def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelEndPointReport cmd) {
+log.debug "endpointreport: ${cmd}"
 	updateDataValue("endpoints", cmd.endPoints.toString())
 	if (!state.endpointInfo) {
 		state.endpointInfo = loadEndpointInfo()

@@ -18,5 +18,6 @@ metadata {
 		capability "Contact Sensor"
         capability "Lock"
 		capability "Sensor"
+		capability "Battery"
 	}
 }

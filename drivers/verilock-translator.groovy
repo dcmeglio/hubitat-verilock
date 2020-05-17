@@ -48,7 +48,24 @@ def zwaveEvent(hubitat.zwave.commands.wakeupv1.WakeUpNotification cmd) {
 	]
 }
 
+def createOrGetChildDevice(ep) {
+	def childDevice = childDevices.find {
+		it.deviceNetworkId == "${device.deviceNetworkId}-ep${ep}"
+	}
+	if (!childDevice) {
+		logDebug "Child not found for endpoint. Creating one now"
+		childDevice = addChildDevice("erocm123", "Lockable Door/Window Child Device", "${device.deviceNetworkId}-ep${ep}",
+			[completedSetup: true, label: "${device.displayName} Window ${ep}",
+				isComponent: false, componentName: "ep$ep", componentLabel: "Window $ep"
+			])
+	}
+}
+
 def zwaveEvent(hubitat.zwave.commands.notificationv3.NotificationReport cmd, ep = null) {
+	if (ep == null) {
+		log.warn "Received a notification report for a null endpoint"
+		return
+	}
 	def evtName
 	def evtValue
 	switch (cmd.event) {
@@ -69,17 +86,8 @@ def zwaveEvent(hubitat.zwave.commands.notificationv3.NotificationReport cmd, ep 
 			evtValue = "closed"
 			break;
 	}
-	def childDevice = childDevices.find {
-		it.deviceNetworkId == "${device.deviceNetworkId}-ep${ep}"
-	}
-	if (!childDevice) {
-		logDebug "Child not found for endpoint. Creating one now"
-		childDevice = addChildDevice("erocm123", "Lockable Door/Window Child Device", "${device.deviceNetworkId}-ep${ep}",
-			[completedSetup: true, label: "${device.displayName} Window ${ep}",
-				isComponent: false, componentName: "ep$ep", componentLabel: "Window $ep"
-			])
-	}
 
+	def childDevice = createOrGetChildDevice(ep)
 	childDevice.sendEvent(name: evtName, value: evtValue)
 
 	def allLocked = true
@@ -99,6 +107,23 @@ def zwaveEvent(hubitat.zwave.commands.notificationv3.NotificationReport cmd, ep 
 	} else {
 		sendEvent([name: "contact", value: "open"])
 	}
+}
+
+def zwaveEvent(hubitat.zwave.commands.batteryv1.BatteryReport cmd, ep = null) {
+log.debug "Received battery report ${cmd} ${ep}"
+	if (ep == null) {
+		log.warn "Received a battery report for a null endpoint"
+		return
+	}
+	def value = cmd.batteryLevel
+	def descriptionText = null
+	if (cmd.batteryLevel == 0xFF) {
+		map.value = 1
+		descriptionText = "${device.displayName} has a low battery"
+	}
+
+	def childDevice = createOrGetChildDevice(ep)
+	childDevice.sendEvent(name: "battery", value: value, unit: "%", descriptionText: descriptionText)
 }
 
 private channelNumber(String dni) {

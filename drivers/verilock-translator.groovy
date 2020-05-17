@@ -18,6 +18,7 @@ metadata {
 		capability "Contact Sensor"
 		capability "Configuration"
 		capability "Sensor"
+		capability "Refresh"
 
 		fingerprint deviceId: "0x414E", inClusters: "0x5E,0x86,0x70,0x8E,0x85,0x59,0x7A,0x71,0x22,0x5A,0x73,0x72,0x60"
 	}
@@ -161,6 +162,12 @@ def zwaveEvent(hubitat.zwave.Command cmd) {
 def configure() {
 	commands([
 		zwave.multiChannelV3.multiChannelEndPointGet()
+	], 800)
+}
+
+def refresh() {
+	commands([
+		zwave.batteryV1.batteryGet()
 	], 800)
 }
 

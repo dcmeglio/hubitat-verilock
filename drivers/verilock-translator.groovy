@@ -59,6 +59,7 @@ def createOrGetChildDevice(ep) {
 				isComponent: false, componentName: "ep$ep", componentLabel: "Window $ep"
 			])
 	}
+	return childDevice
 }
 
 def zwaveEvent(hubitat.zwave.commands.notificationv3.NotificationReport cmd, ep = null) {

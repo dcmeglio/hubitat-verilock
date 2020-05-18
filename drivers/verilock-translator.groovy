@@ -168,7 +168,7 @@ def configure() {
 
 def refresh() {
 	commands([
-		zwave.batteryV1.batteryGet()
+		zwave.notificationV3.notificationSupportedGet()
 	], 800)
 }
 

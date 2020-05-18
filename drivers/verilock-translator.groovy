@@ -151,6 +151,7 @@ def zwaveEvent(hubitat.zwave.commands.associationgrpinfov1.AssociationGroupInfoR
 def zwaveEvent(hubitat.zwave.commands.multichannelv3.MultiChannelCmdEncap cmd) {
 	def encapsulatedCommand = cmd.encapsulatedCommand([0x32: 3, 0x25: 1, 0x20: 1])
 	if (encapsulatedCommand) {
+		logDebug encapsulatedCommand
 		zwaveEvent(encapsulatedCommand, cmd.sourceEndPoint as Integer)
 	}
 }
